@@ -37,6 +37,22 @@ class Sand(Powder) :
         
     def interaction(self) :
         return()
+        
+class Stone(Powder) :
+
+    def __init__(self,i,j,P) :
+        self.name = 'Pierre'
+        self.color = (142,136,117)
+        density = 3
+
+        Powder.__init__(self,P,i,j,density)
+        if (i,j) != (3.1415,3.1415) :
+            self.Plateau.gr[i][j].stat = True
+            self.Plateau.gr[i][j].check = False
+            self.Plateau.alv.append(self)
+        
+    def interaction(self) :
+        return()
 
 class Salt(Powder) :
 
@@ -111,6 +127,35 @@ class Oil(Liquid) :
         
     def interaction(self) :
         return()
+        
+class Lava(Liquid) :
+
+    def __init__(self,i,j,P) :
+        self.name = 'Magma'
+        self.color = (236,87,23)
+        density = 2
+
+        Liquid.__init__(self,P,i,j,density)
+        if (i,j) != (3.1415,3.1415) : #Permet d'eviter la création pour recup le nom
+            self.Plateau.gr[i][j].stat = True
+            self.Plateau.gr[i][j].check = False
+            self.Plateau.alv.append(self)
+        
+    def interaction(self) :
+        self.scan()
+        eligible = []
+        for p in self.near :
+            if type(self.Plateau.gr[p[0]][p[1]].element) == Water :
+                eligible.append(p)
+        if eligible != [] :
+            s = random.choice(eligible)
+            self.Plateau.gr[s[0]][s[1]].element.kill()
+            self.Plateau.gr[s[0]][s[1]].element = Stone(s[0],s[1],self.Plateau)
+            self.kill()
+            return(True)
+        return()
+     
+
 
 class H2(Gaz) :
 
@@ -143,6 +188,17 @@ class O2(Gaz) :
             self.Plateau.alv.append(self)
         
     def interaction(self) :
+        self.scan()
+        eligible = []
+        for p in self.near :
+            if type(self.Plateau.gr[p[0]][p[1]].element) == H2 :
+                eligible.append(p)
+        if eligible != [] :
+            s = random.choice(eligible)
+            self.Plateau.gr[s[0]][s[1]].element.kill()
+            self.Plateau.gr[s[0]][s[1]].element = Water(s[0],s[1],self.Plateau)
+            self.kill()
+            return(True)
         return()
 
-Elemlist = [Marble,Sand,Salt,Water,SaltWater,Oil,H2,O2]
+Elemlist = [Marble,Sand,Salt,Water,SaltWater,Lava,Oil,H2,O2]
